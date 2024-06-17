@@ -149,7 +149,6 @@ namespace admin
                 return; // Thoát sớm khỏi phương thức nếu có thông tin bị thiếu
             }
 
-
             string tenSach = txtNewTenSach.Text;
             decimal giaGoc = Convert.ToDecimal(txtNewGiaGoc.Text);
             decimal giaBan = Convert.ToDecimal(txtNewGiaBan.Text);
@@ -164,13 +163,17 @@ namespace admin
             double trongLuong = Convert.ToDouble(txtNewTrongLuong.Text);
             string maTacGia = ddlMaTacGia.SelectedValue;
             string maDanhMuc = ddlMaDanhMuc.SelectedValue;
-            bool Visible = chkVisible.Checked;
-            //bool visible = txtNewVisible.Text.ToLower() == "true" || txtNewVisible.Text == "1";
+            bool visible = chkVisible.Checked;
 
-
+            // Xử lý upload file ảnh sách
+            string fileName = Path.GetFileName(fileUploadAnhSach.PostedFile.FileName);
+            string filePath = "~/image/" + fileName; // Đường dẫn lưu ảnh trên server
+            string serverPath = Server.MapPath(filePath);
+            fileUploadAnhSach.SaveAs(serverPath);
 
             // Sử dụng SqlDataSource để thực hiện việc thêm dữ liệu vào database
             SqlDataSource1.InsertParameters["TenSach"].DefaultValue = tenSach;
+            SqlDataSource1.InsertParameters["AnhSach"].DefaultValue = fileName;
             SqlDataSource1.InsertParameters["GiaGoc"].DefaultValue = giaGoc.ToString();
             SqlDataSource1.InsertParameters["GiaBan"].DefaultValue = giaBan.ToString();
             SqlDataSource1.InsertParameters["SoLuongDaBan"].DefaultValue = soLuongDaBan.ToString();
@@ -182,96 +185,29 @@ namespace admin
             SqlDataSource1.InsertParameters["SoTrang"].DefaultValue = soTrang.ToString();
             SqlDataSource1.InsertParameters["KichThuoc"].DefaultValue = kichThuoc;
             SqlDataSource1.InsertParameters["TrongLuong"].DefaultValue = trongLuong.ToString();
-            SqlDataSource1.InsertParameters["MaTacGia"].DefaultValue = maTacGia.ToString();
-            SqlDataSource1.InsertParameters["MaDanhMuc"].DefaultValue = maDanhMuc.ToString();
-            SqlDataSource1.InsertParameters["Visible"].DefaultValue = Visible.ToString();
-            //SqlDataSource1.InsertParameters["Visible"].DefaultValue = visible.ToString();
+            SqlDataSource1.InsertParameters["MaTacGia"].DefaultValue = maTacGia;
+            SqlDataSource1.InsertParameters["MaDanhMuc"].DefaultValue = maDanhMuc;
+            SqlDataSource1.InsertParameters["Visible"].DefaultValue = visible.ToString();
 
-
-            // chọn File ảnh sách
-            string filePath = Server.MapPath("~/Images/") + fileUploadAnhSach.FileName;
-            try
-            {
-                fileUploadAnhSach.SaveAs(filePath); // Lưu ảnh vào thư mục Images
-            }
-            catch (Exception ex)
-            {
-                Response.Write("<script>alert('Có lỗi khi tải ảnh: " + ex.Message + "');</script>");
-                return; // Thoát sớm khỏi phương thức nếu có lỗi
-            }
-            filePath = string.Empty;
-            if (fileUploadAnhSach.HasFile)
-            {
-                try
-                {
-                    string filename = Path.GetFileName(fileUploadAnhSach.FileName);
-                    filePath = Path.Combine("~/Images/", filename);
-                    string serverPath = Server.MapPath(filePath);
-
-                    // Lưu file ảnh vào thư mục Images
-                    fileUploadAnhSach.SaveAs(serverPath);
-
-                    // Gán tên file (không kèm thư mục) vào tham số của SqlDataSource
-                    // Chú ý: Ở đây chỉ gán tên file, không gán cả đường dẫn
-                    SqlDataSource1.InsertParameters["AnhSach"].DefaultValue = filename;
-                }
-                catch (Exception ex2)
-                {
-                    // Xử lý lỗi ở đây, có thể log lỗi hoặc hiển thị thông báo
-                    Response.Write("Có lỗi xảy ra: " + ex2.Message);
-                    return; // Dừng việc xử lý nếu có lỗi
-                }
-            }
-            else
-            {
-                // Set một thông báo nếu không có file nào được chọn
-                Response.Write("Vui lòng chọn file ảnh cho sách.");
-                return; // Dừng việc xử lý nếu không có file
-            }
-
-            // Set các tham số còn lại cho SqlDataSource
-            // Sử dụng SqlDataSource để thực hiện việc thêm dữ liệu vào database
-            // Các tham số khác như đã set ở trên
-
-            try
-            {
-                // Thực hiện lệnh Insert
-                SqlDataSource1.Insert();
-                
-                // Làm mới lại GridView để hiển thị dữ liệu mới được thêm vào
-                this.BindGrid();
-                Response.Write("<script>alert('Thêm thành công');</script>");
-
-                // Xóa các giá trị trong TextBox sau khi thêm thành công
-                txtNewTenSach.Text = string.Empty;
-                txtNewGiaGoc.Text = string.Empty;
-                txtNewGiaBan.Text = string.Empty;
-                txtNewSoLuongDaBan.Text = string.Empty;
-                txtNewSoLuongConDu.Text = string.Empty;
-                txtNewTomTat.Text = string.Empty;
-                txtNewNhaXuatBan.Text = string.Empty;
-                txtNewNamXuatBan.Text = string.Empty;
-                txtNewHinhThuc.Text = string.Empty;
-                txtNewSoTrang.Text = string.Empty;
-                txtNewKichThuoc.Text = string.Empty;
-                txtNewTrongLuong.Text = string.Empty;
-                chkVisible.Checked = false;
-
-                // Reset Dropdownlist lại giá trị mặc định
-                ddlMaTacGia.SelectedIndex = 0;
-                ddlMaDanhMuc.SelectedIndex = 0;
-
-                // Xóa các giá trị trong TextBox sau khi thêm thành công
-                // Code để xóa các giá trị TextBox nếu cần
-            }
-            catch (Exception ex3)
-            {
-                // Xử lý lỗi ở đây, có thể log lỗi hoặc hiển thị thông báo
-                Response.Write("Có lỗi xảy ra khi thêm sách mới: " + ex3.Message);
-            }
-
-            
-
+            // Thực hiện lệnh Insert
+            SqlDataSource1.Insert();
+            this.BindGrid();
+            // Thông báo thêm sách thành công và refresh GridView
+            Response.Write("<script>alert('Thêm sách mới thành công.');</script>");
+            // Xóa các giá trị trong TextBox sau khi thêm thành công
+            txtNewTenSach.Text = string.Empty;
+            txtNewGiaGoc.Text = string.Empty;
+            txtNewGiaBan.Text = string.Empty;
+            txtNewSoLuongDaBan.Text = string.Empty;
+            txtNewSoLuongConDu.Text = string.Empty;
+            txtNewTomTat.Text = string.Empty;
+            txtNewNhaXuatBan.Text = string.Empty;
+            txtNewNamXuatBan.Text = string.Empty;
+            txtNewHinhThuc.Text = string.Empty;
+            txtNewSoTrang.Text = string.Empty;
+            txtNewKichThuoc.Text = string.Empty;
+            txtNewTrongLuong.Text = string.Empty;
+            chkVisible.Checked = false;
         }
         protected void GridView1_PageIndexChanging(object sender, GridViewPageEventArgs e)
         {
@@ -279,8 +215,7 @@ namespace admin
             BindGrid(); // Gọi lại phương thức BindGrid() để nạp lại dữ liệu với trang mới.
         }
 
-
-
+   
 
 
 

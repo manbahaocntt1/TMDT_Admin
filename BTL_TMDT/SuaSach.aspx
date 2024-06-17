@@ -22,6 +22,7 @@
 
 
     <form runat="server">
+        <h5 class="card-title m-3">Sửa thông tin sách</h5>
 <div class="form-container">
         <h2>Chỉnh Sửa Thông Tin Sách</h2>
         <asp:Label ID="lblMessage" runat="server" ForeColor="Red" CssClass="text-danger"></asp:Label>

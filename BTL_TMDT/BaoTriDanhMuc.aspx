@@ -45,7 +45,7 @@
 
 
     <form id="form1" runat="server">
-
+        <h5 class="card-title m-3">Bảo Trì Danh Mục Chính </h5>
         <asp:GridView ID="GridView_danhmucchinh" runat="server" AllowPaging="True" AllowSorting="True" CssClass="gridview-custom" AutoGenerateColumns="False" DataKeyNames="MaDanhMucChinh" DataSourceID="SqlDataSource1" Width="399px" OnRowDeleting="GridView_danhmucchinh_RowDeleting">
             <Columns>
                 <asp:BoundField DataField="MaDanhMucChinh" HeaderText="Mã Danh Mục Chính" InsertVisible="False" ReadOnly="True" SortExpression="MaDanhMucChinh" />
