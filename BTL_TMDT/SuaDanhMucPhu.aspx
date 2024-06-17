@@ -13,6 +13,7 @@
 </style>
     
     <form id="form1"   runat="server">
+        <h5 class="card-title m-3">Sửa Thông Tin Danh Mục Phụ </h5>
         <div>
             <label for="txtTenDanhMuc">Tên Danh Mục:</label>
             <asp:TextBox ID="txtTenDanhMuc" runat="server"></asp:TextBox>

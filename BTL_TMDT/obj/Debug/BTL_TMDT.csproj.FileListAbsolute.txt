@@ -175,3 +175,13 @@ C:\Users\LN_HOGNNN\Desktop\hk6\th_mai_dien_tu\btl\webbansach_admin\BTL_TMDT\obj\
 C:\Users\LN_HOGNNN\Desktop\hk6\th_mai_dien_tu\btl\webbansach_admin\BTL_TMDT\obj\Debug\BTL_TMDT.csproj.CopyComplete
 C:\Users\LN_HOGNNN\Desktop\hk6\th_mai_dien_tu\btl\webbansach_admin\BTL_TMDT\obj\Debug\BTL_TMDT.dll
 C:\Users\LN_HOGNNN\Desktop\hk6\th_mai_dien_tu\btl\webbansach_admin\BTL_TMDT\obj\Debug\BTL_TMDT.pdb
+D:\tmdt\TMDT_Admin\BTL_TMDT\bin\BTL_TMDT.dll.config
+D:\tmdt\TMDT_Admin\BTL_TMDT\bin\BTL_TMDT.dll
+D:\tmdt\TMDT_Admin\BTL_TMDT\bin\BTL_TMDT.pdb
+D:\tmdt\TMDT_Admin\BTL_TMDT\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll
+D:\tmdt\TMDT_Admin\BTL_TMDT\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.xml
+D:\tmdt\TMDT_Admin\BTL_TMDT\obj\Debug\BTL_TMDT.csproj.AssemblyReference.cache
+D:\tmdt\TMDT_Admin\BTL_TMDT\obj\Debug\BTL_TMDT.csproj.CoreCompileInputs.cache
+D:\tmdt\TMDT_Admin\BTL_TMDT\obj\Debug\BTL_TMDT.csproj.Up2Date
+D:\tmdt\TMDT_Admin\BTL_TMDT\obj\Debug\BTL_TMDT.dll
+D:\tmdt\TMDT_Admin\BTL_TMDT\obj\Debug\BTL_TMDT.pdb
