@@ -10,6 +10,10 @@ using System.Web.Script.Serialization;
 using System.Web.UI;
 using System.Web.UI.WebControls;
 using System.Web.UI.HtmlControls;
+using iTextSharp.text.pdf;
+using iTextSharp.text;
+using System.IO;
+using System.Text;
 
 namespace BTL_TMDT
 {
@@ -24,15 +28,11 @@ namespace BTL_TMDT
                 // Bind the GridView initially for "Today"
                 BindGridView("Today");
                 revThang.SelectedIndexChanged += new EventHandler(revThang_SelectedIndexChanged);
-                string selectedMonth = revThang.SelectedValue;
-                LoadOrderDataThang(selectedMonth);
-                string selectedYear = revNam.SelectedValue;
-                LoadOrderDataNam(selectedYear);
+                loadScreen();
             }
         }
 
-
-        protected void ddlDateRange_SelectedIndexChanged(object sender, EventArgs e)
+        private void loadScreen()
         {
             string selectedValue = ddlDateRange.SelectedValue;
             BindGridView(selectedValue);
@@ -42,15 +42,15 @@ namespace BTL_TMDT
             LoadOrderDataNam(selectedYear);
         }
 
+        protected void ddlDateRange_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            loadScreen();
+        }
+
         protected void grvRecentSale_PageIndexChanging(object sender, GridViewPageEventArgs e)
         {
             grvRecentSale.PageIndex = e.NewPageIndex;
-            string selectedValue = ddlDateRange.SelectedValue;
-            BindGridView(selectedValue); // Hàm này bạn cần tự định nghĩa để load dữ liệu mới từ cơ sở dữ liệu
-            string selectedMonth = revThang.SelectedValue;
-            LoadOrderDataThang(selectedMonth);
-            string selectedYear = revNam.SelectedValue;
-            LoadOrderDataNam(selectedYear);
+            loadScreen();
         }
 
 
@@ -174,8 +174,10 @@ namespace BTL_TMDT
                     thoigiandt.Controls.Add(new Literal { Text = dateText });
 
                     // Display the total items sold in slDay panel
-                    slDay.Controls.Clear();
-                    slDay.Controls.Add(new Literal { Text = quantityAndDateText });
+                    //slDay.Controls.Clear();
+                    //slDay.Controls.Add(new Literal { Text = quantityAndDateText });
+                    Literalban.Text = quantityAndDateText;
+
 
                     // Get the total revenue
                     using (SqlCommand totalRevenueCmd = new SqlCommand(totalRevenueQuery, con))
@@ -185,10 +187,13 @@ namespace BTL_TMDT
                         con.Close();
 
                         decimal totalRevenue = revenueResult != DBNull.Value ? Convert.ToDecimal(revenueResult) : 0;
+                        string formattedTotalRevenue = $"{totalRevenue:C}";
 
                         // Display total revenue in doanhthu panel
-                        doanhthu.Controls.Clear();
-                        doanhthu.Controls.Add(new Literal { Text = $"{totalRevenue:C}" });
+                        //doanhthu.Controls.Clear();
+                        //doanhthu.Controls.Add(new Literal { Text = $"{totalRevenue:C}" });
+                        contentLiteral.Text = formattedTotalRevenue;
+
                     }
                 }
             }
@@ -198,12 +203,7 @@ namespace BTL_TMDT
 
         protected void revThang_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string selectedMonth = revThang.SelectedValue;
-            LoadOrderDataThang(selectedMonth);
-            string selectedValue = ddlDateRange.SelectedValue;
-            BindGridView(selectedValue);
-            string selectedYear = revNam.SelectedValue;
-            LoadOrderDataNam(selectedYear);
+            loadScreen();
         }
 
         
@@ -304,7 +304,7 @@ namespace BTL_TMDT
 
             for (int year = startYear; year <= currentYear; year++)
             {
-                revNam.Items.Add(new ListItem(year.ToString(), year.ToString()));
+                revNam.Items.Add(new System.Web.UI.WebControls.ListItem(year.ToString(), year.ToString()));
             }
 
             // Set the default selected value to the current year
@@ -313,12 +313,7 @@ namespace BTL_TMDT
 
         protected void revNam_SelectedIndexChanged(object sender, EventArgs e)
         {
-            string selectedYear = revNam.SelectedValue;
-            LoadOrderDataNam(selectedYear);
-            string selectedValue = ddlDateRange.SelectedValue;
-            BindGridView(selectedValue);
-            string selectedMonth = revThang.SelectedValue;
-            LoadOrderDataThang(selectedMonth);
+            loadScreen();
         }
 
         private void LoadOrderDataNam(string yearValue)
@@ -366,7 +361,190 @@ namespace BTL_TMDT
 
 
 
+        protected void btnExportToPdf_Click(object sender, EventArgs e)
+        {
 
+            ExportGridToPDF();
+
+        }
+
+        private string GetDoanhThuContent()
+        {
+            // Accessing the content inside doanhthu panel
+            return contentLiteral.Text.Trim();
+
+        }
+
+        private string getSLBAN()
+        {
+            return Literalban.Text.Trim();
+        }
+
+
+        private void ExportGridToPDF()
+        {
+            string doanhThuContent = GetDoanhThuContent();
+            string daBanContent = getSLBAN();
+
+            // Your existing PDF generation code...
+            // Example:
+            using (MemoryStream memoryStream = new MemoryStream())
+            {
+                Document pdfDoc = new Document(PageSize.A4, 10f, 10f, 10f, 10f);
+                PdfWriter writer = PdfWriter.GetInstance(pdfDoc, memoryStream);
+
+                string fontPath = Server.MapPath("~/Fonts/TIMES.TTF");
+
+                // Register font with iTextSharp
+                BaseFont baseFont = BaseFont.CreateFont(fontPath, BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+                Font unicodeFont = new Font(baseFont, 12, Font.NORMAL);
+
+                pdfDoc.Open();
+
+                // Add custom text for no data or data present
+                if (grvRecentSale.Rows.Count == 0)
+                {
+                    // Add custom text for no data
+                    Paragraph noDataParagraph = new Paragraph("Không có sản phẩm nào được bán hôm nay", unicodeFont)
+                    {
+                        Alignment = Element.ALIGN_CENTER
+                    };
+                    pdfDoc.Add(noDataParagraph);
+                }
+                else
+                {
+                    // Add custom text
+                    Paragraph reportTitle = new Paragraph("Báo cáo thống kê bán hàng", unicodeFont)
+                    {
+                        Alignment = Element.ALIGN_CENTER
+                    };
+                    pdfDoc.Add(reportTitle);
+
+                    // Add a blank line
+                    pdfDoc.Add(new Paragraph("\n", unicodeFont));
+
+                    // Add doanhThuContent from doanhthu panel
+                    string doanhThuText = "Doanh thu:";
+                    Paragraph doanhThuParagraph = new Paragraph(doanhThuText + " " + doanhThuContent, unicodeFont);
+                    pdfDoc.Add(doanhThuParagraph);
+
+                    pdfDoc.Add(new Paragraph("\n", unicodeFont));
+                    pdfDoc.Add(new Paragraph("\n", unicodeFont));
+
+                    string DaBanText = "";
+                    Paragraph daBanParagraph = new Paragraph(DaBanText + " " + daBanContent, unicodeFont);
+                    pdfDoc.Add(daBanParagraph);
+
+                    pdfDoc.Add(new Paragraph("\n", unicodeFont));
+                    pdfDoc.Add(new Paragraph("\n", unicodeFont));
+
+
+                    PdfPTable pdfTable = new PdfPTable(grvRecentSale.HeaderRow.Cells.Count);
+
+                    // Add header row
+                    foreach (TableCell headerCell in grvRecentSale.HeaderRow.Cells)
+                    {
+                        PdfPCell pdfCell = new PdfPCell(new Phrase(headerCell.Text, unicodeFont));
+                        pdfTable.AddCell(pdfCell);
+                    }
+
+                    // Add data rows
+                    foreach (GridViewRow gridViewRow in grvRecentSale.Rows)
+                    {
+                        foreach (TableCell tableCell in gridViewRow.Cells)
+                        {
+                            PdfPCell pdfCell = new PdfPCell(new Phrase(tableCell.Text, unicodeFont));
+                            pdfTable.AddCell(pdfCell);
+                        }
+                    }
+
+                    pdfDoc.Add(pdfTable);
+                }
+
+                pdfDoc.Close();
+
+                byte[] bytes = memoryStream.ToArray();
+                memoryStream.Close();
+
+                Response.Clear();
+                Response.ContentType = "application/pdf";
+                Response.AddHeader("content-disposition", "attachment;filename=BaoCao.pdf");
+                Response.Buffer = true;
+                Response.Cache.SetCacheability(System.Web.HttpCacheability.NoCache);
+                Response.BinaryWrite(bytes);
+                Response.End();
+            }
+        }
+
+
+        public override void VerifyRenderingInServerForm(Control control)
+        {
+            // Confirms that an HtmlForm control is rendered for the specified ASP.NET
+            // server control at run time.
+        }
+
+
+
+        protected void btnExportToExcel_Click(object sender, EventArgs e)
+        {
+            if (grvRecentSale.Rows.Count == 0)
+            {
+                loadScreen();
+            }
+            else
+            {
+                ExportGridToExcel();
+            }
+        }
+
+        private void ExportGridToExcel()
+        {
+            Response.Clear();
+            Response.Buffer = true;
+            Response.AddHeader("content-disposition", "attachment;filename=GridViewExport.xls");
+            Response.ContentType = "application/vnd.ms-excel";
+            Response.Charset = "";
+
+            using (StringWriter sw = new StringWriter())
+            {
+                HtmlTextWriter hw = new HtmlTextWriter(sw);
+
+                // To export all pages
+                grvRecentSale.AllowPaging = false;
+                BindGridView("Today"); // Example date range, replace as needed
+
+                grvRecentSale.HeaderRow.BackColor = System.Drawing.Color.White;
+                foreach (TableCell cell in grvRecentSale.HeaderRow.Cells)
+                {
+                    cell.BackColor = grvRecentSale.HeaderStyle.BackColor;
+                }
+                foreach (GridViewRow row in grvRecentSale.Rows)
+                {
+                    row.BackColor = System.Drawing.Color.White;
+                    foreach (TableCell cell in row.Cells)
+                    {
+                        if (row.RowIndex % 2 == 0)
+                        {
+                            cell.BackColor = grvRecentSale.AlternatingRowStyle.BackColor;
+                        }
+                        else
+                        {
+                            cell.BackColor = grvRecentSale.RowStyle.BackColor;
+                        }
+                        cell.CssClass = "textmode";
+                    }
+                }
+
+                grvRecentSale.RenderControl(hw);
+
+                // style to format numbers to string
+                string style = @"<style> .textmode { mso-number-format:\@; } </style>";
+                Response.Write(style);
+                Response.Output.Write(sw.ToString());
+                Response.Flush();
+                Response.End();
+            }
+        }
 
 
     }
