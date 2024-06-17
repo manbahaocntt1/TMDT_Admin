@@ -42,6 +42,15 @@ namespace BTL_TMDT
         protected global::System.Web.UI.WebControls.Panel slDay;
 
         /// <summary>
+        /// Literalban control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal Literalban;
+
+        /// <summary>
         /// thoigiandt control.
         /// </summary>
         /// <remarks>
@@ -58,6 +67,33 @@ namespace BTL_TMDT
         /// To modify move field declaration from designer file to code-behind file.
         /// </remarks>
         protected global::System.Web.UI.WebControls.Panel doanhthu;
+
+        /// <summary>
+        /// contentLiteral control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Literal contentLiteral;
+
+        /// <summary>
+        /// btnExportToPdf control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnExportToPdf;
+
+        /// <summary>
+        /// btnExportToExcel control.
+        /// </summary>
+        /// <remarks>
+        /// Auto-generated field.
+        /// To modify move field declaration from designer file to code-behind file.
+        /// </remarks>
+        protected global::System.Web.UI.WebControls.Button btnExportToExcel;
 
         /// <summary>
         /// ddlDateRange control.
